@@ -1,0 +1,6 @@
+{
+    "data_path": "arrival_distribution.csv",
+    "dwell_time": 6,
+    "max_queue_alt1": 20,
+    "max_queue_alt2": 10
+} 
