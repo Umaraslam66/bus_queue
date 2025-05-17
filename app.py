@@ -146,19 +146,25 @@ def get_test1_parameters():
     return intervals
 
 def plot_comparison(alt1_metrics, alt2_metrics, test_name):
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 12))
+    
+    # Convert time points to datetime
+    start_time = datetime.strptime("07:00", "%H:%M")
+    time_points = [start_time + timedelta(minutes=0.5 * i) 
+                  for i in range(max(len(alt1_metrics['queue_length']), 
+                                   len(alt2_metrics['queue_length'])))]
     
     # Queue length comparison
-    time_points = np.arange(0, max(len(alt1_metrics['queue_length']), 
-                                 len(alt2_metrics['queue_length']))) * 0.5
     ax1.plot(time_points[:len(alt1_metrics['queue_length'])], 
              alt1_metrics['queue_length'], label='Alternative 1')
     ax1.plot(time_points[:len(alt2_metrics['queue_length'])], 
              alt2_metrics['queue_length'], label='Alternative 2')
     ax1.set_title(f'Queue Length Over Time - {test_name}')
-    ax1.set_xlabel('Time (minutes)')
+    ax1.set_xlabel('Time')
     ax1.set_ylabel('Queue Length')
     ax1.legend()
+    ax1.xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%H:%M'))
+    plt.setp(ax1.xaxis.get_majorticklabels(), rotation=45)
     
     # Waiting time comparison
     ax2.plot(time_points[:len(alt1_metrics['waiting_times'])], 
@@ -166,9 +172,35 @@ def plot_comparison(alt1_metrics, alt2_metrics, test_name):
     ax2.plot(time_points[:len(alt2_metrics['waiting_times'])], 
              alt2_metrics['waiting_times'], label='Alternative 2')
     ax2.set_title('Waiting Time Over Time')
-    ax2.set_xlabel('Time (minutes)')
+    ax2.set_xlabel('Time')
     ax2.set_ylabel('Waiting Time (minutes)')
     ax2.legend()
+    ax2.xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%H:%M'))
+    plt.setp(ax2.xaxis.get_majorticklabels(), rotation=45)
+    
+    # Dwelling buses comparison
+    ax3.plot(time_points[:len(alt1_metrics['dwelling_buses'])], 
+             alt1_metrics['dwelling_buses'], label='Alternative 1')
+    ax3.plot(time_points[:len(alt2_metrics['dwelling_buses'])], 
+             alt2_metrics['dwelling_buses'], label='Alternative 2')
+    ax3.set_title('Number of Buses Dwelling Over Time')
+    ax3.set_xlabel('Time')
+    ax3.set_ylabel('Number of Buses Dwelling')
+    ax3.legend()
+    ax3.xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%H:%M'))
+    plt.setp(ax3.xaxis.get_majorticklabels(), rotation=45)
+    
+    # Cumulative served buses comparison
+    ax4.plot(time_points[:len(alt1_metrics['cumulative_served'])], 
+             alt1_metrics['cumulative_served'], label='Alternative 1')
+    ax4.plot(time_points[:len(alt2_metrics['cumulative_served'])], 
+             alt2_metrics['cumulative_served'], label='Alternative 2')
+    ax4.set_title('Cumulative Buses Served Over Time')
+    ax4.set_xlabel('Time')
+    ax4.set_ylabel('Cumulative Buses Served')
+    ax4.legend()
+    ax4.xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%H:%M'))
+    plt.setp(ax4.xaxis.get_majorticklabels(), rotation=45)
     
     plt.tight_layout()
     return fig

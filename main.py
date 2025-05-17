@@ -56,7 +56,9 @@ class BusSimulation:
             'queue_length': [],
             'buses_served': 0,
             'waiting_times': [],
-            'total_time': 0
+            'total_time': 0,
+            'dwelling_buses': [],  # New metric for buses currently dwelling
+            'cumulative_served': []  # New metric for cumulative buses served
         }
     
     def simulate_alternative1(self, arrival_times):
@@ -66,6 +68,7 @@ class BusSimulation:
         unloading = None
         current_time = 0
         arrival_idx = 0
+        cumulative_served = 0
         
         while arrival_idx < len(arrival_times) or queue or unloading:
             # Process arrivals
@@ -79,6 +82,7 @@ class BusSimulation:
                 if current_time >= unloading + self.dwell_time:
                     unloading = None
                     self.metrics['buses_served'] += 1
+                    cumulative_served += 1
             
             # Start new unloading if possible
             if unloading is None and queue:
@@ -89,6 +93,12 @@ class BusSimulation:
             self.metrics['queue_length'].append(len(queue))
             if queue:
                 self.metrics['waiting_times'].append(current_time - queue[0])
+            
+            # Record dwelling buses (1 if unloading, 0 if not)
+            self.metrics['dwelling_buses'].append(1 if unloading is not None else 0)
+            
+            # Record cumulative served buses
+            self.metrics['cumulative_served'].append(cumulative_served)
             
             current_time += 0.5  # Half-minute time steps
             
@@ -102,6 +112,7 @@ class BusSimulation:
         unloading = []  # List of (start_time, end_time) tuples
         current_time = 0
         arrival_idx = 0
+        cumulative_served = 0
         
         while arrival_idx < len(arrival_times) or queue or unloading:
             # Process arrivals
@@ -118,11 +129,18 @@ class BusSimulation:
                 unloading.append((current_time, current_time + self.dwell_time))
                 queue.pop(0)
                 self.metrics['buses_served'] += 1
+                cumulative_served += 1
             
             # Record metrics
             self.metrics['queue_length'].append(len(queue))
             if queue:
                 self.metrics['waiting_times'].append(current_time - queue[0])
+            
+            # Record dwelling buses (number of buses currently unloading)
+            self.metrics['dwelling_buses'].append(len(unloading))
+            
+            # Record cumulative served buses
+            self.metrics['cumulative_served'].append(cumulative_served)
             
             current_time += 0.5  # Half-minute time steps
             
