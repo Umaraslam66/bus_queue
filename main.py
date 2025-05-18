@@ -45,8 +45,10 @@ class BusSimulation:
         
         # Simulation parameters
         self.dwell_time = 6  # minutes
-        self.max_queue_alt1 = 20
+        self.max_queue_alt1 = 20  # Maximum queue length
+        self.max_unloading_alt1 = 20  # Maximum number of buses that can unload simultaneously
         self.max_queue_alt2 = 10
+        self.max_unloading_alt2 = 10
         
         # Metrics
         self.reset_metrics()
@@ -81,7 +83,7 @@ class BusSimulation:
             unloading = [(start, end) for start, end in unloading if end > current_time]
             
             # Start new unloading if possible
-            while len(unloading) < self.max_queue_alt1 and queue:
+            while len(unloading) < self.max_unloading_alt1 and queue:
                 unloading.append((current_time, current_time + self.dwell_time))
                 queue.pop(0)
                 self.metrics['buses_served'] += 1
@@ -123,7 +125,7 @@ class BusSimulation:
             unloading = [(start, end) for start, end in unloading if end > current_time]
             
             # Start new unloading if possible
-            while len(unloading) < self.max_queue_alt2 and queue:
+            while len(unloading) < self.max_unloading_alt2 and queue:
                 unloading.append((current_time, current_time + self.dwell_time))
                 queue.pop(0)
                 self.metrics['buses_served'] += 1

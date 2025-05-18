@@ -237,12 +237,16 @@ def main():
     
     # Alternative 1 parameters
     st.sidebar.subheader("Alternative 1 Parameters")
-    alt1_capacity = st.sidebar.number_input("Single Lane Capacity", 
+    alt1_queue_capacity = st.sidebar.number_input("Queue Capacity", 
+                                          min_value=5, max_value=50, value=20)
+    alt1_unloading_capacity = st.sidebar.number_input("Unloading Capacity", 
                                           min_value=5, max_value=50, value=20)
     
     # Alternative 2 parameters
     st.sidebar.subheader("Alternative 2 Parameters")
-    alt2_capacity = st.sidebar.number_input("Side Road Capacity", 
+    alt2_queue_capacity = st.sidebar.number_input("Queue Capacity", 
+                                          min_value=5, max_value=30, value=10)
+    alt2_unloading_capacity = st.sidebar.number_input("Unloading Capacity", 
                                           min_value=5, max_value=30, value=10)
     
     # Generate data and run simulation when button is clicked
@@ -262,8 +266,10 @@ def main():
         # Initialize and run simulation
         sim = BusSimulation("config.json")
         sim.dwell_time = dwell_time
-        sim.max_queue_alt1 = alt1_capacity
-        sim.max_queue_alt2 = alt2_capacity
+        sim.max_queue_alt1 = alt1_queue_capacity
+        sim.max_unloading_alt1 = alt1_unloading_capacity
+        sim.max_queue_alt2 = alt2_queue_capacity
+        sim.max_unloading_alt2 = alt2_unloading_capacity
         
         arrival_times = df['minutes_from_start'].values
         
