@@ -65,7 +65,7 @@ class BusSimulation:
         """One lane road with space for 20 buses, no overtaking"""
         self.reset_metrics()
         queue = []
-        unloading = None
+        unloading = []  # List of (start_time, end_time) tuples
         current_time = 0
         arrival_idx = 0
         cumulative_served = 0
@@ -78,24 +78,22 @@ class BusSimulation:
                 arrival_idx += 1
             
             # Process unloading
-            if unloading is not None:
-                if current_time >= unloading + self.dwell_time:
-                    unloading = None
-                    self.metrics['buses_served'] += 1
-                    cumulative_served += 1
+            unloading = [(start, end) for start, end in unloading if end > current_time]
             
             # Start new unloading if possible
-            if unloading is None and queue:
-                unloading = current_time
+            while len(unloading) < self.max_queue_alt1 and queue:
+                unloading.append((current_time, current_time + self.dwell_time))
                 queue.pop(0)
+                self.metrics['buses_served'] += 1
+                cumulative_served += 1
             
             # Record metrics
             self.metrics['queue_length'].append(len(queue))
             if queue:
                 self.metrics['waiting_times'].append(current_time - queue[0])
             
-            # Record dwelling buses (1 if unloading, 0 if not)
-            self.metrics['dwelling_buses'].append(1 if unloading is not None else 0)
+            # Record dwelling buses (number of buses currently unloading)
+            self.metrics['dwelling_buses'].append(len(unloading))
             
             # Record cumulative served buses
             self.metrics['cumulative_served'].append(cumulative_served)
